@@ -1,0 +1,23 @@
+int led = 13;
+char option;
+
+void setup() {
+  pinMode(13, OUTPUT);
+    Serial.begin(9600);
+    Serial.setTimeout(1);
+}
+
+void loop() {
+  if(Serial.available()>0);
+{
+  option = Serial.read();
+
+    if(option == 'P'){
+      digitalWrite(13, HIGH);
+    }
+    if(option == 'A')
+    {
+      digitalWrite(13, LOW);
+    }
+  }
+}
