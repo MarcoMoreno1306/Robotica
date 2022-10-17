@@ -3,13 +3,15 @@ import numpy as np
 import serial,time
 
 arduino = serial.Serial('COM4',9600, timeout=.1)
-time.sleep(2)
-objeto = False
+time.sleep(10)
 def dibujar(mask,color):
+
   contornos,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
       cv2.CHAIN_APPROX_SIMPLE)
+
   for c in contornos:
     area = cv2.contourArea(c)
+    #print(area)
     if area > 3000:
       M = cv2.moments(c)
       if (M["m00"]==0): M["m00"]=1
@@ -17,22 +19,52 @@ def dibujar(mask,color):
       y = int(M['m01']/M['m00'])
 
       nuevoContorno = cv2.convexHull(c)
-      cv2.circle(frame,(x,y),7,(0,255,0),-1)
+      # cv2.circle(frame,(x,y),7,(0,255,0),-1)
+
+      print("y:")
+      print(y)
+      if x>10 and x<600 and y>15 and y<400:   #arreglar rangos
+        print("P")
+        arduino.write(b'P')
+      else:
+        #print("fuera de centro")
+        print("A")
+        arduino.write(b'A')   
       cv2.putText(frame,'{},{}'.format(x,y),(x+10,y), font, 0.75,(0,255,0),1,cv2.LINE_AA)
       cv2.drawContours(frame, [nuevoContorno], 0, color, 3)
-      objeto = True
-    else:
-        objeto = False
+
+
+       
+      
 
 cap = cv2.VideoCapture(0)
 
-amarilloBajo = np.array([11,100,20],np.uint8)
+amarilloBajo = np.array([15,100,20],np.uint8)
 amarilloAlto = np.array([32,255,255],np.uint8)
+objeto = False
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 while True:
 
   ret,frame = cap.read()
+ 
+
+
+  if ret == True:
+    frameHSV = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+    maskAmarillo = cv2.inRange(frameHSV,amarilloBajo,amarilloAlto)
+    
+    dibujar(maskAmarillo,(0,255,255))
+    #print(objeto)
+
+    cv2.imshow('frame',frame)
+    
+    if cv2.waitKey(1) & 0xFF == ord('s'):
+                    break
+cap.release()
+cv2.destroyAllWindows()
+arduino.close()
+
 
 
   if ret == True:
