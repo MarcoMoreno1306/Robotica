@@ -64,24 +64,3 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 arduino.close()
-
-
-
-  if ret == True:
-    frameHSV = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-    maskAmarillo = cv2.inRange(frameHSV,amarilloBajo,amarilloAlto)
-    #print(maskAmarillo)
-    dibujar(maskAmarillo,(0,255,255))
-
-    cv2.imshow('frame',frame)
-    if ((amarilloAlto>=1).any() | (amarilloBajo>=1).any()):
-     
-       arduino.write(b'P')
-    else:
-       arduino.write(b'A')
-       break
-    if cv2.waitKey(1) & 0xFF == ord('s'):
-                    break
-cap.release()
-cv2.destroyAllWindows()
-arduino.close()
